@@ -16,6 +16,7 @@
 /// \author Katarina Krizkova Gajdosova
 /// \author Diana Maria Krupova
 /// \author David Grund
+/// \author Alexian Lejeune
 ///
 
 // C++
@@ -70,10 +71,11 @@ void QcMFTDigitTask::initialize(o2::framework::InitContext& /*ctx*/)
     mNoiseScan = stoi(param->second);
   }
 
-  auto maxDigitROFSize = 5000;
-  if (auto param = mCustomParameters.find("maxDigitROFSize"); param != mCustomParameters.end()) {
-    ILOG(Debug, Devel) << "Custom parameter - maxDigitROFSize: " << param->second << ENDM;
-    maxDigitROFSize = stoi(param->second);
+  auto ROFBins = [1,10,100,1000,10000];
+  if (auto param = mCustomParameters.find("ROFBins"); param != mCustomParameters.end()) {
+    ILOG(Debug, Devel) << "Custom parameter - ROFBins: " << param->second << ENDM;
+    //ROFBins = stoi(param->second);
+    ROFBins = param->second;
   }
 
   auto maxDuration = 60.f;
@@ -157,10 +159,11 @@ void QcMFTDigitTask::initialize(o2::framework::InitContext& /*ctx*/)
   mDigitOccupancySummary->SetStats(0);
   getObjectsManager()->startPublishing(mDigitOccupancySummary.get());
   getObjectsManager()->setDisplayHint(mDigitOccupancySummary.get(), "colz");
-
+                                               
   mDigitsROFSize = std::make_unique<TH1FRatio>("mDigitsROFSize",
-                                               "Distribution of the #digits per ROF; # digits per ROF; # entries per orbit",
-                                               maxDigitROFSize, 0, maxDigitROFSize, true);
+					       "Distribution of the #digits per ROF; # digits per ROF; # entries per orbit",
+					       319, ROFBins, false);
+                                               
   mDigitsROFSize->SetStats(0);
   getObjectsManager()->startPublishing(mDigitsROFSize.get());
   getObjectsManager()->setDisplayHint(mDigitsROFSize.get(), "hist logx logy");
